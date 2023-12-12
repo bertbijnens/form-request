@@ -8,15 +8,13 @@ use Illuminate\Validation\Rules\Exists as BaseExists;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Exists implements Rule
 {
-    private array $rules;
-
-    public function __construct(string $table, string $column = 'id')
+    public function __construct(private string $table, private string $column = 'NULL')
     {
-        $this->rules = [new BaseExists($table, $column)];
+        //
     }
 
     public function getRules(): array
     {
-        return $this->rules;
+        return [new BaseExists($this->table, $this->column)];
     }
 }
