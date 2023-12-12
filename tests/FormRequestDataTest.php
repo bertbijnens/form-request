@@ -3,7 +3,9 @@
 namespace Anteris\Tests\FormRequest;
 
 use Anteris\Tests\FormRequest\Stubs\AttributesRequest;
+use Anteris\Tests\FormRequest\Stubs\BeforeValidationRequest;
 use Anteris\Tests\FormRequest\Stubs\CreatePersonRequest;
+use Anteris\Tests\FormRequest\Stubs\HooksRequest;
 use Anteris\Tests\FormRequest\Stubs\NullablePropertyRequest;
 use Anteris\Tests\FormRequest\Stubs\RequiredPropertyNotNullRequest;
 use Illuminate\Http\Request;
@@ -181,6 +183,38 @@ class FormRequestDataTest extends TestCase
         $this->assertSame(
             ['last_name' => 'Johnson', 'email' => 'larry.johnson@example.com',],
             $request->except('first_name')
+        );
+    }
+
+    public function test_before_validation()
+    {
+        $email = 'LARRY.johnson@example.com';
+        $request = new BeforeValidationRequest(
+            $this->createRequest([
+                'email'      => $email,
+            ]),
+            $this->createValidationFactory()
+        );
+
+        $this->assertSame(
+            ['email' => strtolower($email)],
+            $request->only('email')
+        );
+    }
+
+    public function test_after_validation()
+    {
+        $email = 'LARRY.johnson@example.com';
+        $request = new BeforeValidationRequest(
+            $this->createRequest([
+                'email'      => $email,
+            ]),
+            $this->createValidationFactory()
+        );
+
+        $this->assertSame(
+            ['email' => strtolower($email)],
+            $request->only('email')
         );
     }
 

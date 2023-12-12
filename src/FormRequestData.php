@@ -50,14 +50,29 @@ abstract class FormRequestData implements Arrayable
     {
         $reflection = $this->getReflection();
 
+        $properties = $this->beforeValidation(
+            $this->request->only($reflection->getPropertyNames())
+        );
+
         $validated = $this->validationFactory->make(
-            $this->request->only($reflection->getPropertyNames()),
+            $properties,
             $reflection->getValidationRules()
         )->validate();
 
         foreach ($validated as $property => $value) {
             $this->{$property} = $value;
         }
+
+        $this->afterValidation();
+    }
+
+
+    protected function beforeValidation(array $properties): array {
+        return $properties;
+    }
+
+    protected function afterValidation() {
+
     }
 
     private function createReflection(): void
