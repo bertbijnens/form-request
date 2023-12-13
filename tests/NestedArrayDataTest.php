@@ -14,7 +14,7 @@ use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\TestCase;
 
-class NestedFormRequestDataTest extends TestCase
+class NestedArrayDataTest extends TestCase
 {
     public function test_it_can_set_properties_when_valid()
     {

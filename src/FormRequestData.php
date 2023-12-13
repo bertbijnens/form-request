@@ -2,6 +2,7 @@
 
 namespace Anteris\FormRequest;
 
+use Anteris\FormRequest\Attributes\Rule;
 use Anteris\FormRequest\Reflection\FormRequestDataReflectionClass;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Validation\Factory;
@@ -56,6 +57,21 @@ abstract class FormRequestData implements Arrayable
         )->validate();
 
         foreach ($validated as $property => $value) {
+
+            //check if property is a FormRequestData class
+            foreach($reflection->getProperties() as $property_name) {
+                if($property_name->getName() == $property) {
+                    foreach($property_name->getTypes() as $type) {
+                        if(class_exists($type->getName()) && is_subclass_of($type->getName(), FormRequestData::class)) {
+                            $value = new ($type->getName())(
+                                Request::create('/', 'GET', $this->request->$property),
+                                $this->validationFactory
+                            );
+                        }
+                    }
+                }
+            }
+
             $this->{$property} = $value;
         }
     }
