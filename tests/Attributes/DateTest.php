@@ -1,6 +1,6 @@
 <?php
 
-namespace Anteris\Tests\FormRequest\Attributes;
+namespace Attributes;
 
 use Anteris\FormRequest\Attributes\Date;
 use Anteris\Tests\FormRequest\Support\TestsValidationAttributes;

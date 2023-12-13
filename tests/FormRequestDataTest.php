@@ -3,6 +3,7 @@
 namespace Anteris\Tests\FormRequest;
 
 use Anteris\Tests\FormRequest\Stubs\AttributesRequest;
+use Anteris\Tests\FormRequest\Stubs\CreateContactListRequest;
 use Anteris\Tests\FormRequest\Stubs\CreatePersonRequest;
 use Anteris\Tests\FormRequest\Stubs\NullablePropertyRequest;
 use Anteris\Tests\FormRequest\Stubs\RequiredPropertyNotNullRequest;

@@ -52,7 +52,7 @@ abstract class FormRequestData implements Arrayable
 
         $validated = $this->validationFactory->make(
             $this->request->only($reflection->getPropertyNames()),
-            $reflection->getValidationRules()
+            $this->getValidationRules()
         )->validate();
 
         foreach ($validated as $property => $value) {
@@ -68,5 +68,10 @@ abstract class FormRequestData implements Arrayable
     private function getReflection(): FormRequestDataReflectionClass
     {
         return $this->reflection;
+    }
+
+    public function getValidationRules(): array
+    {
+        return $this->getReflection()->getValidationRules();
     }
 }
