@@ -29,6 +29,11 @@ class FormRequestDataReflectionProperty
         return $this->property->getName();
     }
 
+    public function hasDefaultValue(): bool
+    {
+        return $this->property->hasDefaultValue();
+    }
+
     public function getTypes(): array
     {
         $type = $this->property->getType();
@@ -91,7 +96,7 @@ class FormRequestDataReflectionProperty
     {
         $rules = [];
 
-        if (!$this->allowsNull()) {
+        if (!$this->allowsNull() && !$this->hasDefaultValue()) {
             $rules[] = 'required';
         }
         else {
