@@ -43,13 +43,38 @@ class FormRequestDataReflectionClass
 
     public function getValidationRules(): array
     {
-        $array = [];
+        $build = [];
 
         /** @var FormRequestDataReflectionProperty $property */
         foreach ($this->getProperties() as $property) {
-            $array[$property->getName()] = $property->getValidationRules();
+            $validation_rules = $property->getValidationRules();
+
+            foreach($validation_rules as $k => $v) {
+                $validation_subject = $property->getName();
+
+                foreach($property->getTypes() as $type) {
+                    //var_dump($type->getName());
+                }
+
+                if($property->hasType('array')) {
+                    $validation_subject .= '.*.' . $k;
+                }
+                else if($property->hasType('object')) {
+                    $validation_subject .= '.' . $k;
+                }
+
+                $rule = $v;
+                if(is_numeric($k)) {
+                    $rule = [$v];
+                }
+
+                $build[$validation_subject] = array_unique(array_merge(
+                    $build[$validation_subject] ?? [],
+                    $rule
+                ));
+            }
         }
 
-        return $array;
+        return $build;
     }
 }

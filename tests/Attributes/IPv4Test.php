@@ -1,6 +1,6 @@
 <?php
 
-namespace Anteris\Tests\FormRequest\Attributes;
+namespace Attributes;
 
 use Anteris\FormRequest\Attributes\IPv4;
 use Anteris\Tests\FormRequest\Support\TestsValidationAttributes;

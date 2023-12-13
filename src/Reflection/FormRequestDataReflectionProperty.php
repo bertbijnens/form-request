@@ -75,6 +75,7 @@ class FormRequestDataReflectionProperty
         foreach ($attributes as $attribute) {
             $attribute = $attribute->newInstance();
 
+            //TODO array_unique recursive
             $validationRulesArray = array_merge_recursive($validationRulesArray, $attribute->getRules());
         }
 
@@ -90,8 +91,11 @@ class FormRequestDataReflectionProperty
     {
         $rules = [];
 
-        if (! $this->allowsNull()) {
+        if (!$this->allowsNull()) {
             $rules[] = 'required';
+        }
+        else {
+            $rules[] = 'nullable';
         }
 
         if ($this->hasType('string')) {
