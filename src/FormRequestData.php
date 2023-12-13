@@ -2,16 +2,16 @@
 
 namespace Anteris\FormRequest;
 
-use Anteris\FormRequest\Attributes\Rule;
 use Anteris\FormRequest\Reflection\FormRequestDataReflectionClass;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 
 abstract class FormRequestData implements Arrayable
 {
     private FormRequestDataReflectionClass $reflection;
+
+    protected array $validated = [];
 
     final public function __construct(
         private Request $request,
@@ -24,6 +24,11 @@ abstract class FormRequestData implements Arrayable
     public function getRequest(): Request
     {
         return $this->request;
+    }
+
+    public function validated(): array
+    {
+        return $this->validated;
     }
 
     public function except(string ...$keys): array
@@ -52,12 +57,12 @@ abstract class FormRequestData implements Arrayable
     {
         $reflection = $this->getReflection();
 
-        $validated = $this->validationFactory->make(
+        $this->validated = $this->validationFactory->make(
             $this->request->only($reflection->getPropertyNames()),
             $this->getValidationRules()
         )->validate();
 
-        foreach ($validated as $property => $value) {
+        foreach ($this->validated as $property => $value) {
 
             //check if property is a FormRequestData class
             foreach($reflection->getProperties() as $property_name) {

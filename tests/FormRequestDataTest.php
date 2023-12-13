@@ -19,12 +19,14 @@ class FormRequestDataTest extends TestCase
 {
     public function test_it_can_set_properties_when_valid()
     {
+        $data = [
+            'first_name' => 'Aidan',
+            'last_name'  => 'Casey',
+            'email'      => 'aidan.casey@example.com',
+        ];
+
         $personRequest = new CreatePersonRequest(
-            $this->createRequest([
-                'first_name' => 'Aidan',
-                'last_name'  => 'Casey',
-                'email'      => 'aidan.casey@example.com',
-            ]),
+            $this->createRequest($data),
             $this->createValidationFactory()
         );
 
@@ -32,6 +34,8 @@ class FormRequestDataTest extends TestCase
         $this->assertSame('Casey', $personRequest->last_name);
         $this->assertSame('aidan.casey@example.com', $personRequest->email);
         $this->assertInstanceOf(Request::class, $personRequest->getRequest());
+
+        $this->assertSame($data, $personRequest->validated());
     }
 
     public function test_it_throws_exceptions_when_validation_fails()
@@ -76,6 +80,40 @@ class FormRequestDataTest extends TestCase
         );
 
         $this->assertFalse(isset($request->property));
+    }
+
+    public function test_it_does_include_set_sometimes_in_validated()
+    {
+        $data = ['property' => 'Hi!'];
+
+        $request = new NullablePropertyRequest(
+            $this->createRequest($data),
+            $this->createValidationFactory()
+        );
+
+        $this->assertEquals($data, $request->validated());
+    }
+
+    public function test_it_does_include_null_value_sometimes_in_validated()
+    {
+        $data = ['property' => null];
+
+        $request = new NullablePropertyRequest(
+            $this->createRequest($data),
+            $this->createValidationFactory()
+        );
+
+        $this->assertEquals($data, $request->validated());
+    }
+
+    public function test_it_does_not_include_unset_sometimes_in_validated()
+    {
+        $request = new NullablePropertyRequest(
+            $this->createRequest(),
+            $this->createValidationFactory()
+        );
+
+        $this->assertEmpty($request->validated());
     }
 
     public function test_validation_with_attribute_validators()
