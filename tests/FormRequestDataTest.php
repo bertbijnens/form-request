@@ -84,7 +84,19 @@ class FormRequestDataTest extends TestCase
 
     public function test_it_does_include_set_sometimes_in_validated()
     {
-        $data = ['property' => 'Hi!',];
+        $data = ['property' => 'Hi!'];
+
+        $request = new NullablePropertyRequest(
+            $this->createRequest($data),
+            $this->createValidationFactory()
+        );
+
+        $this->assertEquals($data, $request->validated());
+    }
+
+    public function test_it_does_include_null_value_sometimes_in_validated()
+    {
+        $data = ['property' => null];
 
         $request = new NullablePropertyRequest(
             $this->createRequest($data),
