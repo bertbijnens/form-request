@@ -11,6 +11,6 @@ class CreateContactListRequest extends FormRequestData
     #[Validation('required', 'string')]
     public string $name;
 
-    #[Validation('sometimes', 'array', 'nullable'), ArrayOf(CreatePersonRequest::class)]
+    #[ArrayOf(CreatePersonRequest::class)]
     public ?array $contacts = null;
 }
