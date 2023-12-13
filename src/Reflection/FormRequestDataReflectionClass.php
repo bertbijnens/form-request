@@ -56,11 +56,13 @@ class FormRequestDataReflectionClass
                     //var_dump($type->getName());
                 }
 
-                if($property->hasType('array')) {
-                    $validation_subject .= '.*.' . $k;
-                }
-                else if($property->hasType('object')) {
-                    $validation_subject .= '.' . $k;
+                if(is_string($k)) {
+                    if($property->hasType('array')) {
+                        $validation_subject = trim($validation_subject . '.*.' . $k, '.');
+                    }
+                    else if($property->hasType('object')) {
+                        $validation_subject = trim($validation_subject . '.' . $k, '.');
+                    }
                 }
 
                 $rule = $v;

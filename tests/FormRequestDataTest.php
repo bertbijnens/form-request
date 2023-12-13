@@ -2,6 +2,7 @@
 
 namespace Anteris\Tests\FormRequest;
 
+use Anteris\Tests\FormRequest\Stubs\ArrayOfStringsRequest;
 use Anteris\Tests\FormRequest\Stubs\AttributesRequest;
 use Anteris\Tests\FormRequest\Stubs\CreateContactListRequest;
 use Anteris\Tests\FormRequest\Stubs\CreatePersonRequest;
@@ -182,6 +183,27 @@ class FormRequestDataTest extends TestCase
         $this->assertSame(
             ['last_name' => 'Johnson', 'email' => 'larry.johnson@example.com',],
             $request->except('first_name')
+        );
+    }
+
+    public function test_validation_for()
+    {
+        $data = [
+            'triggers' => [
+                'a',
+                'b',
+                'c'
+            ],
+        ];
+
+        $request = new ArrayOfStringsRequest(
+            $this->createRequest($data),
+            $this->createValidationFactory()
+        );
+
+        $this->assertSame(
+            $data,
+            $request->toArray()
         );
     }
 

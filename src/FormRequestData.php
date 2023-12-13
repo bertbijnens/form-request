@@ -7,6 +7,7 @@ use Anteris\FormRequest\Reflection\FormRequestDataReflectionClass;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 abstract class FormRequestData implements Arrayable
 {
