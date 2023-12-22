@@ -31,6 +31,8 @@ class NestedObjectDataTest extends TestCase
             $this->createValidationFactory()
         );
 
+        $this->assertSame(get_class($request->favorite), CreatePersonRequest::class);
+
         $this->assertSame('Larry', $request->favorite->first_name);
         $this->assertSame('Johnson', $request->favorite->last_name);
         $this->assertSame('larry.johnson@gmail.com', $request->favorite->email);

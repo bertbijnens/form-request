@@ -37,6 +37,7 @@ class NestedArrayDataTest extends TestCase
             $this->createValidationFactory()
         );
 
+        $this->assertSame(get_class($request->contacts[0]), CreatePersonRequest::class);
         $this->assertSame('emergency contacts', $request->name);
         $this->assertSame($request->name, $request->getRequest()->name);
         $this->assertInstanceOf(Request::class, $request->getRequest());
@@ -94,10 +95,12 @@ class NestedArrayDataTest extends TestCase
             $this->createValidationFactory()
         );
 
-        $this->assertSame(
-            $data,
-            $request->toArray()
-        );
+        $this->assertSame($request->name, $data['name']);
+        $this->assertIsArray($request->contacts);
+        $this->assertCount(1, $request->contacts);
+        $this->assertSame($request->contacts[0]->first_name, $data['contacts'][0]['first_name']);
+        $this->assertSame($request->contacts[0]->last_name, $data['contacts'][0]['last_name']);
+        $this->assertSame($request->contacts[0]->email, $data['contacts'][0]['email']);
     }
 
     private function createRequest(array $data = []): Request
