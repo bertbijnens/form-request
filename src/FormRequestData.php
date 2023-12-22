@@ -64,18 +64,20 @@ abstract class FormRequestData implements Arrayable
 
         foreach ($this->validated as $property => $value) {
 
+            $property_reflection = $reflection->getProperty($property);
+
             //check if property is a FormRequestData class
-            foreach($reflection->getProperties() as $property_name) {
-                if($property_name->getName() == $property) {
-                    foreach($property_name->getTypes() as $type) {
-                        if(class_exists($type->getName()) && is_subclass_of($type->getName(), FormRequestData::class)) {
-                            $value = new ($type->getName())(
-                                Request::create('/', 'GET', $this->request->$property),
-                                $this->validationFactory
-                            );
-                        }
-                    }
+            foreach($property_reflection->getTypes() as $type) {
+                if(class_exists($type->getName()) && is_subclass_of($type->getName(), FormRequestData::class)) {
+                    $value = new ($type->getName())(
+                        Request::create('/', 'GET', $this->request->$property),
+                        $this->validationFactory
+                    );
                 }
+            }
+
+            if($property_reflection->hasType('object') && is_array($value)) {
+                $value = (object)$value;
             }
 
             $this->{$property} = $value;

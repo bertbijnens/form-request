@@ -96,11 +96,19 @@ class FormRequestDataReflectionProperty
     {
         $rules = [];
 
-        if (!$this->allowsNull() && !$this->hasDefaultValue()) {
-            $rules[] = 'required';
-        }
-        else {
+        if($this->allowsNull()) {
             $rules[] = 'nullable';
+        }
+
+
+        if($this->hasDefaultValue()) {
+
+        }
+
+        if(!in_array('nullable', $rules)) {
+            if(!$this->hasDefaultValue()) {
+                //$rules[] = 'required';
+            }
         }
 
         if ($this->hasType('string')) {
@@ -121,6 +129,10 @@ class FormRequestDataReflectionProperty
 
         if ($this->hasType('bool')) {
             $rules[] = 'boolean';
+        }
+
+        if(!in_array('required', $rules)) {
+            $rules[] = 'sometimes';
         }
 
         return $rules;

@@ -33,6 +33,17 @@ class FormRequestDataReflectionClass
         );
     }
 
+    public function getProperty(string $name): ?FormRequestDataReflectionProperty
+    {
+        foreach ($this->getProperties() as $property) {
+            if ($property->getName() == $name) {
+                return $property;
+            }
+        }
+
+        return null;
+    }
+
     public function getPropertyNames(): array
     {
         return array_map(
@@ -70,7 +81,7 @@ class FormRequestDataReflectionClass
                     $rule = [$v];
                 }
 
-                $build[$validation_subject] = array_unique(array_merge(
+                $build[$validation_subject] = $this->removeDuplicateRules(array_merge(
                     $build[$validation_subject] ?? [],
                     $rule
                 ));
@@ -78,5 +89,15 @@ class FormRequestDataReflectionClass
         }
 
         return $build;
+    }
+
+    private function removeDuplicateRules(array $rules): array {
+        if(in_array('required', $rules) && in_array('sometimes', $rules)) {
+            $rules = array_filter($rules, function($rule) {
+                return $rule != 'sometimes';
+            });
+        }
+
+        return array_unique($rules);
     }
 }

@@ -40,6 +40,238 @@ public function store(CreatePersonRequest $request)
 }
 ```
 
+## Documentation
+
+### Default rules
+Based on the type of the property, the following rules get applied automatically:
+- `required` when the property does not accept a null vallue and doesn't have a default value
+- `nullable` when the property does accept a null value or has a default value
+- `string`
+- `int`
+- `numeric` for float
+- `array`
+- `boolean`
+
+For example, the following snippet:
+```php
+class ContactInformation extends FormRequestData
+{
+    public string $email;
+    //generates ['sometimes', 'string'];
+    
+    public ?string $first_name = null;
+    //generates ['sometimes', 'nullable', 'string']
+    
+    public ?string $last_name;
+    //generates ['sometimes', 'nullable', 'string']
+    
+    public string $role = 'user';
+    //generates ['sometimes', 'string']
+}
+```
+
+### Specify validation rules
+You can add any valid Laravel rules via the ```Validation``` attributes.
+Provide the validation rules as a string parameter to to the  ```Validation``` object, 
+multiple parameters can be passed as multiple arguments
+
+For example, the following snippet:
+```php
+class CreateUser extends FormRequestData
+{
+    #[Required, Validation('email')]
+    public string $email;
+    //generates ['required', 'string', 'email'];
+    
+    #[Required, Validation('min:1', 'max:20')]
+    public string $username;
+    //generates ['required', 'string', 'min:1', 'max:20']
+    
+    #[Required, Validation('password')]
+    public string $password;
+    //generates ['required', 'string', 'password]
+}
+```
+
+
+### Predefined validation rules
+Most validation rules are wrapped in predefined attributes.
+For example, the following snippet:
+```php
+class CreateUser extends FormRequestData
+{
+    #[Email]
+    public string $email;
+    //generates ['sometimes', 'string', 'email'];
+    
+    #[Min(1), Max(20)]
+    public string $username;
+    //generates ['sometimes', 'nullable', 'string', 'min:1', 'max:20']
+    
+    #[Password]
+    public string $password;
+    //generates ['sometimes', 'required', 'string', 'password]
+}
+```
+
+### Multiple validation rules
+You can list multiple validation rules
+```php
+#[Email, Validate('min:1')]
+public string $email;
+//generates ['sometimes', 'string', 'email', 'min:1];
+```
+
+
+
+### Create your own validation rules
+You can list multiple validation rules
+```php
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class CreativePasswordValidationn implements Rule
+{
+    public function getRules(): array
+    {
+        return [
+            'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/'
+        ];
+    }
+}
+```
+
+```php
+#[CreativePasswordValidation]
+public string $password;
+//generates ['sometimes', 'string', 'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%]).*$/'];
+```
+
+
+
+### Apply validation on arrays
+```php
+class CreateUser extends FormRequestData
+{
+    #[Required]
+    public string $first_name;
+    //generates ['required', 'string''];
+    
+    #[Required, ValidateArray('string', 'email')]
+    public array $list;
+    /*generates [
+        'list' => 'required'
+        'list' => 'array'
+        'list.*' => 'string|email|max:255'
+    ];
+    */
+}
+```
+
+### Apply validation on objects
+```php
+class CreateUser extends FormRequestData
+{
+    #[Required]
+    public string $first_name;
+    //generates ['required', 'string''];
+    
+    #[ValidationFor('street', 'required', 'string'), ValidationFor('city', 'required', 'string')]
+    public object $address;
+    
+    /*generates [
+        'address.street' => 'required', 'string'
+    ];
+    */
+}
+```
+
+
+### Nested objects
+You can nest FormRequestData objects:
+
+```php
+class CreateUser extends FormRequestData
+{
+    #[Required]
+    public string $first_name;
+    //generates ['required', 'string''];
+    
+    public CreateAddress $address;
+    /*generates [
+        'address.street' => 'required', 'string',
+        'address.city' => 'required', 'string',
+        'address.country_id' => 'required', 'string', 'uuid', 'exists:countries,id'
+    ];
+    */
+}
+
+class CreateAddress extends FormRequestData
+{
+    #[Required]
+    public string $street;
+    //generates ['required', 'string'];
+    
+    #[Required]
+    public string $city;
+    //generates ['required', 'string']
+    
+    #[Required, Uuid, Exists('countries', 'id')]
+    public string $country_id;
+    //generates ['required', 'string', 'uuid', 'exists:countries,id']
+}
+```
+
+### Nested array of objects
+You can nest array of FormRequestData objects:
+
+```php
+class ContactList extends FormRequestData
+{
+    #[Required]
+    public string $name;
+    //generates ['required', 'string'];
+    
+    /** @var array<CreateContact> */
+    #[ArrayOf(CreateContact::class)]
+    public array $contacts;
+    /*generates [
+        'contacts.*.first_name' => 'required', 'string',
+    ];
+    */
+}
+
+class CreateContact extends FormRequestData
+{
+    #[Required]
+    public string $first_name;
+    //generates ['required', 'string''];
+}
+```
+
+### Email Validation
+Due to several options available to the Email validator, the Email validation attribute accepts several flags. These are:
+
+- `Email::RfcValidation`
+- `Email::NoRfcWarningsValidation`
+- `Email::DnsCheckValidation`
+- `Email::SpoofCheckValidation`
+- `Email:FilterEmailValidation`
+
+By default, the mode is set to `Email::RfcValidation`.
+
+See an example of this usage below:
+
+```php
+class ContactInformation extends FormRequestData
+{
+    #[Required, Email]
+    public string $email;
+    
+    #[Required, Email(Email::DnsCheckValidation | Email::SpoofCheckValidation)]
+    public string $email_2;
+}
+```
+
+
 ## [WIP] Validation Attributes
 To assist with building your validation rules, various attributes are available. These attributes have typed parameters so that it is easy to see their available options.
 
@@ -116,27 +348,3 @@ The following attributes currently exist:
 - `Anteris\FormRequest\Attributes\Uuid`
 
 To create your own validation attribute, simply extend `Anteris\FormRequest\Attributes\Rule` and provide the correct output to the `getRules()` method.
-
-### Email Validation
-Due to several options available to the Email validator, the Email validation attribute accepts several flags. These are:
-
-- `Email::RfcValidation`
-- `Email::NoRfcWarningsValidation`
-- `Email::DnsCheckValidation`
-- `Email::SpoofCheckValidation`
-- `Email:FilterEmailValidation`
-
-By default, the mode is set to `Email::RfcValidation`.
-
-See an example of this usage below:
-
-```php
-class ContactInformation extends FormRequestData
-{
-    #[Email]
-    public string $email;
-    
-    #[Email(Email::DnsCheckValidation | Email::SpoofCheckValidation)]
-    public string $email_2;
-}
-```
