@@ -3,6 +3,7 @@
 namespace Anteris\FormRequest\Reflection;
 
 use Anteris\FormRequest\Attributes\Rule;
+use ReflectionAttribute;
 use ReflectionProperty;
 use ReflectionUnionType;
 
@@ -56,6 +57,7 @@ class FormRequestDataReflectionProperty
         return in_array($type, $typeNames);
     }
 
+    /* @return ReflectionAttribute[] */
     public function getValidationAttributes(): array
     {
         $attributes           = $this->property->getAttributes();
@@ -70,6 +72,20 @@ class FormRequestDataReflectionProperty
         }
 
         return $validationAttributes;
+    }
+
+    /* @return ReflectionAttribute|null */
+    public function firstValidationAttribute($type): ?ReflectionAttribute
+    {
+        $attributes = $this->getValidationAttributes();
+
+        foreach($attributes as $attribute) {
+            if($attribute->getName() === $type) {
+                return $attribute;
+            }
+        }
+
+        return null;
     }
 
     public function getValidationRules(): array

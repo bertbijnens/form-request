@@ -2,6 +2,7 @@
 
 namespace Anteris\FormRequest;
 
+use Anteris\FormRequest\Attributes\ArrayOf;
 use Anteris\FormRequest\Reflection\FormRequestDataReflectionClass;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Validation\Factory;
@@ -73,6 +74,21 @@ abstract class FormRequestData implements Arrayable
                         Request::create('/', 'GET', $this->request->$property),
                         $this->validationFactory
                     );
+                }
+            }
+
+            if($this->request->$property && $property_reflection->hasType('array')) {
+                $array_attribute = $property_reflection->firstValidationAttribute(ArrayOf::class);
+
+                if($array_attribute) {
+                    $dto_type = $array_attribute->getArguments()[0];
+
+                    $value = array_map(function($item) use ($dto_type) {
+                        return new ($dto_type)(
+                            Request::create('/', 'GET', $item),
+                            $this->validationFactory
+                        );
+                    }, $this->request->$property);
                 }
             }
 
